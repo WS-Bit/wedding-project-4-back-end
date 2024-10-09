@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'guests',
     'rsvp',
     'songrequests',
+    'memories'
 ]
 
 MIDDLEWARE = [
