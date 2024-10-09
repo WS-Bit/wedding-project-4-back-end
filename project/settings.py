@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'phonenumber_field',
     'guests',
+    'rsvp',
 ]
 
 MIDDLEWARE = [
