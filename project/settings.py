@@ -33,6 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_PASSWORD = env('SITE_PASSWORD')
 
 # Application definition
 
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "project.middleware.PasswordProtectionMiddleware"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -71,7 +73,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'project', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
