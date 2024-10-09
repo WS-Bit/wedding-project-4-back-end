@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'guests',
     'rsvp',
     'songrequests',
-    'memories'
+    'memories',
 ]
 
 MIDDLEWARE = [
@@ -65,8 +65,21 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "project.middleware.PasswordProtectionMiddleware"
 ]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
 
 ROOT_URLCONF = 'project.urls'
 

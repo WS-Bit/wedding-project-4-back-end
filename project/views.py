@@ -1,20 +1,18 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from django.conf import settings
-import json
+import logging
 
-@csrf_exempt
-def enter_password(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        if data.get('password') == settings.SITE_PASSWORD:
+logger = logging.getLogger(__name__)
+
+class EnterPasswordView(APIView):
+    def post(self, request):
+        password = request.data.get('password')
+        if password == settings.SITE_PASSWORD:
             request.session['is_authenticated'] = True
-            return JsonResponse({'is_authenticated': True})
-        else:
-            return JsonResponse({'is_authenticated': False}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-def home(request):
-    if not request.session.get('is_authenticated'):
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-    return JsonResponse({'message': 'Welcome to the home page'})
+            request.session.save()
+            logger.info(f"Authentication successful. Session ID: {request.session.session_key}")
+            return Response({'is_authenticated': True}, status=status.HTTP_200_OK)
+        logger.warning(f"Authentication failed. Provided password: {password}")
+        return Response({'is_authenticated': False}, status=status.HTTP_401_UNAUTHORIZED)
