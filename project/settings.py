@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'guests',
     'rsvp',
+    'songrequests',
 ]
 
 MIDDLEWARE = [

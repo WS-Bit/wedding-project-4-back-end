@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('guests/', include('guests.urls')),
     path('rsvp/', include('rsvp.urls')),
+    path('songrequests/', include('songrequests.urls'))
     
 ]
