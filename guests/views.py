@@ -1,10 +1,12 @@
 import logging
+import traceback
 from rest_framework.views import APIView 
 from rest_framework.response import Response 
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from .models import Guest
 from .serializers.common import GuestSerializer
+from phonenumber_field.phonenumber import PhoneNumber
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,16 @@ class GuestView(APIView):
         logger.info(f"Received POST request with data: {request.data}")
         try:
             self.check_authentication(request)
+            
+            # Convert phone number to PhoneNumber instance
+            phone = request.data.get('phone')
+            if phone:
+                try:
+                    request.data['phone'] = PhoneNumber.from_string(phone).as_e164
+                except Exception as e:
+                    logger.error(f"Error processing phone number: {str(e)}")
+                    return Response({"error": f"Invalid phone number: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
             guest_to_add = GuestSerializer(data=request.data)
             if guest_to_add.is_valid():
                 guest = guest_to_add.save()
@@ -33,4 +45,4 @@ class GuestView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             logger.exception(f"Unexpected error: {str(e)}")
-            return Response({"error": "An unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e), "traceback": traceback.format_exc()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
