@@ -18,6 +18,21 @@ class GuestView(APIView):
             raise PermissionDenied("Authentication required")
         logger.info("Authentication check passed")
 
+    def get(self, request):
+        logger.info("Received GET request for guests")
+        try:
+            self.check_authentication(request)
+            guests = Guest.objects.all()
+            serializer = GuestSerializer(guests, many=True)
+            logger.info(f"Returning {len(guests)} guests")
+            return Response(serializer.data)
+        except PermissionDenied as e:
+            logger.error(f"Permission denied: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.exception(f"Unexpected error in GET request: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def post(self, request):
         logger.info(f"Received POST request with data: {request.data}")
         try:
