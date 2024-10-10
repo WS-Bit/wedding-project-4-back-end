@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.utils import timezone
 from ..models import Memories
 
 class MemoriesSerializer(serializers.ModelSerializer):
@@ -8,9 +7,8 @@ class MemoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Memories
         fields = ['id', 'guest', 'guest_name', 'memory_text', 'date_shared']
-        extra_kwargs = {'date_shared': {'required': False}}
+        read_only_fields = ['date_shared']
 
     def create(self, validated_data):
-        if 'date_shared' not in validated_data:
-            validated_data['date_shared'] = timezone.now().date()
-        return super().create(validated_data)
+        memory = Memories.objects.create(**validated_data)
+        return memory
