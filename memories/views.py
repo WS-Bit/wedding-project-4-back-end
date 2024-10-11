@@ -22,46 +22,38 @@ class MemoryView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        guest_id = request.data.get('guest_id')
-        memory_text = request.data.get('memory_text')
-
-        if not guest_id or not memory_text:
-            return Response({'error': 'Both guest_id and memory_text are required.'}, 
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            guest = Guest.objects.get(id=guest_id)
-        except Guest.DoesNotExist:
-            return Response({'error': 'Guest not found.'}, 
-                            status=status.HTTP_404_NOT_FOUND)
-
-        memory = Memories(guest=guest, memory_text=memory_text)
-        memory.save()
-
-        serializer = MemoriesSerializer(memory)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = MemoriesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+from rest_framework.views import APIView 
+from rest_framework.response import Response 
+from rest_framework import status
+from rest_framework.exceptions import NotFound, PermissionDenied
+from .models import Memories
+from .serializers.common import MemoriesSerializer
+
 class MemoryDetailView(APIView):
-    def get_object(self, pk):
+    def get_object(self, pk, guest_id):
         try:
-            return Memories.objects.get(pk=pk)
+            memory = Memories.objects.get(pk=pk)
+            if memory.guest.id != guest_id:
+                raise PermissionDenied("You don't have permission to perform this action.")
+            return memory
         except Memories.DoesNotExist:
             raise NotFound(detail="Memory not found")
 
-    def put(self, request, pk):
-        memory = self.get_object(pk)
-        serializer = MemoriesSerializer(memory, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def delete(self, request, pk):
-        memory = self.get_object(pk)
+        guest_id = request.session.get('guest_id')
+        if not guest_id:
+            return Response({"error": "Guest not registered"}, status=status.HTTP_400_BAD_REQUEST)
+
+        memory = self.get_object(pk, guest_id)
         memory.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
 
 class AllMemoriesView(APIView):
     def get(self, request):
