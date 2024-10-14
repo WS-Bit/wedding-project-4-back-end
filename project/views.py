@@ -1,5 +1,5 @@
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.conf import settings
 import logging
@@ -15,13 +15,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-@require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    response = JsonResponse({"detail": "CSRF cookie set"})
-    csrf_token = get_token(request)
-    print(f"Setting CSRF token: {csrf_token}")  # Add this line for debugging
+    token = get_token(request)
+    print(f"Setting CSRF token: {token}")
+    response = JsonResponse({'csrfToken': token})
+    response.set_cookie('csrftoken', token, samesite='None', secure=True)
     return response
 
 
