@@ -1,5 +1,7 @@
-from pathlib import Path
+# settings.py
+
 import os
+from pathlib import Path
 import environ
 from dotenv import load_dotenv
 import django_on_heroku
@@ -9,9 +11,6 @@ import dj_database_url
 env = environ.Env()
 environ.Env.read_env()
 
-# Determine the environment
-ENV = os.getenv('ENVIRONMENT', 'DEV')
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,14 +18,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kjwpunl0@d45ablg)wu5fi&688xem^3=(mg@j&)o-x06rmulh)')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ENV == 'DEV'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wedding-back-end-ga-32f0d464c773.herokuapp.com'] if ENV == 'DEV' else ['your-production-domain.com']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
-SITE_PASSWORD = os.getenv('SITE_PASSWORD')
+# Database
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=False
+    )
+}
 
 # Application definition
 INSTALLED_APPS = [
@@ -47,64 +53,93 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "project.middleware.PasswordProtectionMiddleware"
+    'project.middleware.PasswordProtectionMiddleware',
 ]
-
-# CORS and CSRF settings
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "https://wedding-front-end-ga.netlify.app",
-    "http://localhost:3000",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://wedding-front-end-ga.netlify.app",
-    "http://localhost:3000",
-]
-
-# Add these headers explicitly if not added already
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "accept-language",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
-
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "PUT",
-    "PATCH",
-    "DELETE",
-    "OPTIONS",
-]
-
-# Ensure credentials are allowed for cookies (CSRF)
-CSRF_COOKIE_SECURE = ENV == 'PROD'
-CSRF_COOKIE_SAMESITE = 'None'  # Needed for cross-origin requests
-CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_SECURE = ENV == 'PROD'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'None'
-
-# Add your static files handling here
 
 ROOT_URLCONF = 'project.urls'
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'project.wsgi.application'
+
+
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://wedding-front-end-ga.netlify.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://wedding-front-end-ga.netlify.app",
+]
+
+# Configure Django App for Heroku
+django_on_heroku.settings(locals())
+
+# Override DATABASE_URL after django_on_heroku setup
+if os.environ.get('ENVIRONMENT') == 'DEV' and 'DATABASE_URL' in os.environ:
+    del os.environ['DATABASE_URL']
+
+# Site password
+SITE_PASSWORD = os.getenv('SITE_PASSWORD')
+
+# Environment
+ENVIRONMENT = os.getenv('ENVIRONMENT')
 
 # Logging configuration
 LOGGING = {
@@ -119,23 +154,4 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'INFO',
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
 }
-
-# Configure Django App for Heroku
-django_on_heroku.settings(locals())
-
-# Override DATABASE_URL after django_on_heroku setup
-if ENV == 'DEV' and 'DATABASE_URL' in os.environ:
-    del os.environ['DATABASE_URL']
-
-SECURE_SSL_REDIRECT = ENV == 'PROD'
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True

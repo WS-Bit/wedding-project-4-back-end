@@ -17,11 +17,7 @@ logger = logging.getLogger(__name__)
 
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    token = get_token(request)
-    print(f"Setting CSRF token: {token}")
-    response = JsonResponse({'csrfToken': token})
-    response.set_cookie('csrftoken', token, samesite='None', secure=True)
-    return response
+    return JsonResponse({"details": "CSRF cookie set"})
 
 
 
