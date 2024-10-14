@@ -8,8 +8,6 @@ logger = logging.getLogger(__name__)
 
 from django.conf import settings
 
-from django.middleware.csrf import get_token
-
 from django.views.decorators.csrf import ensure_csrf_cookie
 import logging
 
