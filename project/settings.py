@@ -59,26 +59,13 @@ MIDDLEWARE = [
 ]
 
 # CORS and CSRF settings
-CORS_ALLOW_ALL_ORIGINS = True  # For development, be more specific in production
-CORS_ALLOW_CREDENTIALS = True
-
+CORS_ALLOW_ALL_ORIGINS = False  # Set to False for better security
 CORS_ALLOWED_ORIGINS = [
     "https://wedding-front-end-ga.netlify.app",
+    "http://localhost:3000",  # If testing locally
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://wedding-front-end-ga.netlify.app",
-]
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
+# Add these headers explicitly if not added already
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -89,9 +76,24 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "X-Requested-With",
+    "X-CSRFToken",
 ]
 
-CSRF_COOKIE_SAMESITE = 'Lax'
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+
+# Ensure credentials are allowed for cookies (CSRF)
+CORS_ALLOW_CREDENTIALS = True
+
+
+CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
