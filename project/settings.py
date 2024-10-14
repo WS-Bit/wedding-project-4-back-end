@@ -16,7 +16,9 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 from dotenv import load_dotenv
+import django_on_heroku
 
+ENV = str(os.getenv('ENVIRONMENT', 'DEV'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,12 +28,17 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY'),
+if ENV == 'DEV':
+    # Replace the value below with your own secret and remove this comment.
+    SECRET_KEY = 'django-insecure-kjwpunl0@d45ablg)wu5fi&688xem^3=(mg@j&)o-x06rmulh)'
+else:
+    SECRET_KEY = env('SECRET_KEY'),
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = ENV == 'DEV'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 SITE_PASSWORD = env('SITE_PASSWORD')
 
@@ -187,3 +194,5 @@ LOGGING = {
         },
     },
 }
+
+django_on_heroku.settings(locals())
