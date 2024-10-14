@@ -24,7 +24,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kjwpunl0@d45ablg)wu5fi&688
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = ENV == 'DEV'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if ENV == 'DEV' else ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wedding-back-end-ga-32f0d464c773.herokuapp.com'] if ENV == 'DEV' else ['*']
 
 SITE_PASSWORD = os.getenv('SITE_PASSWORD')
 
@@ -59,16 +59,24 @@ MIDDLEWARE = [
 
 # CORS and CSRF settings
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = False  # Set to False for better security
 CORS_ALLOWED_ORIGINS = [
     "https://wedding-front-end-ga.netlify.app",
-    "http://localhost:3000",  # If testing locally
+    "http://localhost:3000",
+    "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://wedding-front-end-ga.netlify.app",
+    "http://localhost:3000",
+    "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
+]
 ]
 
 # Add these headers explicitly if not added already
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
+    "accept-language",
     "authorization",
     "content-type",
     "dnt",
@@ -76,8 +84,6 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    "X-Requested-With",
-    "X-CSRFToken",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -92,14 +98,19 @@ CORS_ALLOW_METHODS = [
 # Ensure credentials are allowed for cookies (CSRF)
 
 CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False
-CSRF_USE_SESSIONS = False
-SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_USE_SESSIONS = False
 CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_DOMAIN = None
+SESSION_COOKIE_HTTPONLY = True
+
 
 ROOT_URLCONF = 'project.urls'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 TEMPLATES = [
     {
@@ -190,3 +201,8 @@ django_on_heroku.settings(locals())
 # Override DATABASE_URL after django_on_heroku setup
 if ENV == 'DEV' and 'DATABASE_URL' in os.environ:
     del os.environ['DATABASE_URL']
+
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True

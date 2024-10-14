@@ -9,9 +9,8 @@ logger = logging.getLogger(__name__)
 @require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    logger.info(f"Setting CSRF cookie. Current cookies: {request.COOKIES}")
     response = JsonResponse({"detail": "CSRF cookie set"})
-    logger.info(f"Response cookies: {response.cookies}")
+    response["Access-Control-Allow-Credentials"] = "true"
     return response
 
 @require_POST
