@@ -22,7 +22,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kjwpunl0@d45ablg)wu5fi&688xem^3=(mg@j&)o-x06rmulh)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ENV == 'DEV'
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wedding-back-end-ga-32f0d464c773.herokuapp.com'] if ENV == 'DEV' else ['*']
 
