@@ -11,10 +11,14 @@ from django.conf import settings
 @require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    response = JsonResponse({"detail": "CSRF cookie set"})
-    response["Access-Control-Allow-Credentials"] = "true"
-    response["Access-Control-Allow-Origin"] = settings.FRONTEND_URL  # Ensure your front-end URL is whitelisted
-    return response
+    try:
+        response = JsonResponse({"detail": "CSRF cookie set"})
+        response["Access-Control-Allow-Credentials"] = "true"
+        return response
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
 
 
 @require_POST
