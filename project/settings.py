@@ -97,11 +97,12 @@ CORS_ALLOW_METHODS = [
 ]
 
 # Ensure credentials are allowed for cookies (CSRF)
-CSRF_COOKIE_SECURE = False  # Set to True when using HTTPS
+CSRF_COOKIE_SECURE = ENV == 'PROD'
 CSRF_COOKIE_SAMESITE = 'None'  # Needed for cross-origin requests
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SECURE = ENV == 'PROD'
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'None'
 
 # Add your static files handling here
 

@@ -15,15 +15,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    logger.info(f"Setting CSRF cookie. Current cookies: {request.COOKIES}")
     response = JsonResponse({"detail": "CSRF cookie set"})
-    logger.info(f"Response cookies: {response.cookies}")
+    csrf_token = get_token(request)
+    print(f"Setting CSRF token: {csrf_token}")  # Add this line for debugging
     return response
-
-
 
 
 
