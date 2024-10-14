@@ -19,6 +19,13 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+@ensure_csrf_cookie
+def set_csrf_token(request):
+    logger.info(f"Setting CSRF cookie. Current cookies: {request.COOKIES}")
+    response = JsonResponse({"details": "CSRF cookie set"})
+    logger.info(f"Response cookies: {response.cookies}")
+    return response
+
 @require_POST
 @ensure_csrf_cookie
 def enter_password(request):
