@@ -62,12 +62,14 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "https://wedding-front-end-ga.netlify.app",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://wedding-front-end-ga.netlify.app",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
 ]
 
@@ -146,6 +148,8 @@ if ENV == 'DEV':
     }
 else:
     DATABASES = {'default': dj_database_url.config(conn_max_age=600, ssl_require=True)}
+
+VITE_API_URL = os.getenv('VITE_API_URL', 'http://localhost:8000')
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
