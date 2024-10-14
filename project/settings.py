@@ -22,9 +22,9 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kjwpunl0@d45ablg)wu5fi&688xem^3=(mg@j&)o-x06rmulh)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = ENV == 'DEV'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wedding-back-end-ga-32f0d464c773.herokuapp.com'] if ENV == 'DEV' else ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wedding-back-end-ga-32f0d464c773.herokuapp.com'] if ENV == 'DEV' else ['your-production-domain.com']
 
 SITE_PASSWORD = os.getenv('SITE_PASSWORD')
 
@@ -73,7 +73,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
 ]
 
-
 # Add these headers explicitly if not added already
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -98,86 +97,18 @@ CORS_ALLOW_METHODS = [
 ]
 
 # Ensure credentials are allowed for cookies (CSRF)
-
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = 'None'
-CSRF_USE_SESSIONS = False
-CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_SAMESITE = 'None' if ENV == 'PROD' else 'Lax'
+CSRF_COOKIE_SECURE = ENV == 'PROD'
+SESSION_COOKIE_SECURE = ENV == 'PROD'
 SESSION_COOKIE_HTTPONLY = True
 
+# Add your static files handling here
 
 ROOT_URLCONF = 'project.urls'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'project', 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'project.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-if ENV == 'DEV':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'wedding-project-back-end',
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
-else:
-    DATABASES = {'default': dj_database_url.config(conn_max_age=600, ssl_require=True)}
-
-VITE_API_URL = os.getenv('VITE_API_URL', 'http://localhost:8000')
-
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-]
-
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-}
-
+# Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -185,17 +116,15 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'error.log'),
+        },
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'file'],
         'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
     },
 }
 
@@ -206,7 +135,7 @@ django_on_heroku.settings(locals())
 if ENV == 'DEV' and 'DATABASE_URL' in os.environ:
     del os.environ['DATABASE_URL']
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = ENV == 'PROD'
 SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
