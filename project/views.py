@@ -6,12 +6,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from django.conf import settings
+
 @require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
     response = JsonResponse({"detail": "CSRF cookie set"})
     response["Access-Control-Allow-Credentials"] = "true"
+    response["Access-Control-Allow-Origin"] = settings.FRONTEND_URL  # Ensure your front-end URL is whitelisted
     return response
+
 
 @require_POST
 @ensure_csrf_cookie
