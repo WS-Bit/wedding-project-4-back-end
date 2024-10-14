@@ -8,8 +8,8 @@ class PasswordProtectionMiddleware:
 
     def __call__(self, request):
         if not request.session.get('is_authenticated'):
-            # Allow access to the password entry endpoint
-            if request.path == reverse('enter_password'):
+            # Allow access to the admin and password entry endpoints
+            if request.path.startswith('/admin/') or request.path == reverse('enter_password'):
                 return self.get_response(request)
             
             # For API requests, return a JSON response instead of redirecting
