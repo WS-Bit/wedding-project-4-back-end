@@ -10,17 +10,18 @@ from django.conf import settings
 
 from django.middleware.csrf import get_token
 
+from django.views.decorators.csrf import ensure_csrf_cookie
+import logging
+
+logger = logging.getLogger(__name__)
+
 @require_GET
 @ensure_csrf_cookie
 def set_csrf_token(request):
-    try:
-        csrf_token = get_token(request)
-        response = JsonResponse({"csrfToken": csrf_token, "detail": "CSRF cookie set"})
-        response["Access-Control-Allow-Credentials"] = "true"
-        return response
-    except Exception as e:
-        logger.error("Error setting CSRF token: %s", str(e))
-        return JsonResponse({"error": str(e)}, status=500)
+    logger.info(f"Setting CSRF cookie. Current cookies: {request.COOKIES}")
+    response = JsonResponse({"detail": "CSRF cookie set"})
+    logger.info(f"Response cookies: {response.cookies}")
+    return response
 
 
 
