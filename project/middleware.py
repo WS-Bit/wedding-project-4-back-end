@@ -7,16 +7,10 @@ class PasswordProtectionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.path in ['/api/csrf_cookie/', '/api/enter_password/']:
+            return self.get_response(request)
+        
         if not request.session.get('is_authenticated'):
-            # Allow access to the admin and password entry endpoints
-            if request.path.startswith('/admin/') or request.path == reverse('enter_password'):
-                return self.get_response(request)
-            
-            # For API requests, return a JSON response instead of redirecting
-            if request.path.startswith('/api/'):
-                return JsonResponse({'error': 'Authentication required'}, status=401)
-            
-            # For non-API requests, redirect to the password entry page
-            return redirect('enter_password')
+            return JsonResponse({'error': 'Authentication required'}, status=401)
         
         return self.get_response(request)
