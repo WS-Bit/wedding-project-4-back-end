@@ -1,7 +1,7 @@
 from rest_framework.views import APIView 
 from rest_framework.response import Response 
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from guests.models import Guest
 from .models import Memories
 from .serializers.common import MemoriesSerializer
@@ -28,13 +28,6 @@ class MemoryView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-from rest_framework.views import APIView 
-from rest_framework.response import Response 
-from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied
-from .models import Memories
-from .serializers.common import MemoriesSerializer
 
 class MemoryDetailView(APIView):
     def get_object(self, pk, guest_id):

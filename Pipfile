@@ -14,6 +14,8 @@ django-environ = "*"
 django-cors-headers = "*"
 django-phonenumber-field = "*"
 phonenumbers = "*"
+dj-database-url = "*"
+django-on-heroku = "*"
 
 [dev-packages]
 autopep8 = "*"

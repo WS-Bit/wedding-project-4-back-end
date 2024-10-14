@@ -2,7 +2,7 @@ from django.db import models
 from guests.models import Guest
 
 WEDDING_CHOICES = [
-    ('ENG', 'England',),
+    ('ENG', 'England'),
     ('AUS', 'Australia'),
     ('BOTH', 'Both')
 ]
