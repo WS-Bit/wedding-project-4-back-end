@@ -1,1 +1,1 @@
-web: gunicorn wedding-front-end-ga.wsgi
+web: gunicorn project.wsgi
