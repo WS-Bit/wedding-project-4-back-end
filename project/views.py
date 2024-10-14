@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_GET
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,9 +10,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+@require_GET
 @ensure_csrf_cookie
-def set_csrf_token(request):
-    return JsonResponse({"details": "CSRF cookie set"})
+def get_csrf_token(request):
+    return JsonResponse({"detail": "CSRF cookie set"})
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class EnterPasswordView(APIView):
