@@ -70,7 +70,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://wedding-back-end-ga-32f0d464c773.herokuapp.com",
 ]
-]
+
 
 # Add these headers explicitly if not added already
 CORS_ALLOW_HEADERS = [
