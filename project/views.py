@@ -15,6 +15,20 @@ logger = logging.getLogger(__name__)
 def get_csrf_token(request):
     return JsonResponse({"detail": "CSRF cookie set"})
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+@require_POST
+@ensure_csrf_cookie
+def enter_password(request):
+    password = request.POST.get('password')
+    if password == settings.SITE_PASSWORD:
+        request.session['is_authenticated'] = True
+        request.session.save()
+        return JsonResponse({'is_authenticated': True})
+    return JsonResponse({'is_authenticated': False, 'error': 'Incorrect password'}, status=401)
+
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class EnterPasswordView(APIView):
     def post(self, request):

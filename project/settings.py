@@ -22,10 +22,9 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kjwpunl0@d45ablg)wu5fi&688xem^3=(mg@j&)o-x06rmulh)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = ENV == 'DEV'
-DEBUG = True
+DEBUG = ENV == 'DEV'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if ENV == 'DEV' else ['*']
 
 SITE_PASSWORD = os.getenv('SITE_PASSWORD')
 
@@ -122,13 +121,19 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', f"postgres://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:5432/wedding-project-back-end"),
-        conn_max_age=600,
-        ssl_require=False if ENV == 'DEV' else True
-    )
-}
+if ENV == 'DEV':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'wedding-project-back-end',
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
+else:
+    DATABASES = {'default': dj_database_url.config(conn_max_age=600, ssl_require=True)}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
