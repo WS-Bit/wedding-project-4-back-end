@@ -6,6 +6,7 @@ import environ
 from dotenv import load_dotenv
 import django_on_heroku
 import dj_database_url
+from datetime import timedelta
 
 # Initialize environment variables
 env = environ.Env()
@@ -23,16 +24,21 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['*']
 
 # Database
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=False
-    )
-}
+DATABASES = {}
+if env('ENVIRONMENT') != 'DEV':
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600, ssl_require=True)
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=False
+        )
+    }
 
 # Application definition
 INSTALLED_APPS = [
@@ -49,18 +55,18 @@ INSTALLED_APPS = [
     'rsvp',
     'songrequests',
     'memories',
+    'jwt_auth',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'project.middleware.PasswordProtectionMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -85,22 +91,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -114,47 +104,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CSRF settings
-CSRF_COOKIE_SAMESITE = 'None'  # Required for cross-site requests
-CSRF_COOKIE_SECURE = True  # Use only with HTTPS
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access the cookie
-CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not in session
-CSRF_COOKIE_NAME = 'csrftoken'  # Ensure this matches what your frontend expects
-
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://wedding-front-end-ga.netlify.app",
-]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://wedding-front-end-ga.netlify.app",
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:3000', 'https://wedding-front-end-ga.netlify.app']
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+
 
 # Configure Django App for Heroku
 django_on_heroku.settings(locals())
@@ -184,6 +141,31 @@ LOGGING = {
     },
 }
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True  # Only use this if you're sure all traffic should be HTTPS
-SESSION_COOKIE_SECURE = True
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'jwt_auth.authentication.JWTAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'jwt_auth.permissions.IsAuthenticatedWithJWT',
+    ],
+}
+
+JWT_EXPIRATION_DELTA = timedelta(hours=48)  # Set the expiration time for your JWT tokens
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]

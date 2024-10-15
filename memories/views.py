@@ -5,8 +5,10 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from guests.models import Guest
 from .models import Memories
 from .serializers.common import MemoriesSerializer
+from django.views.decorators.csrf import csrf_exempt
 
 class MemoryView(APIView):
+    @csrf_exempt
     def get(self, request):
         guest_id = request.session.get('guest_id')
         if not guest_id:
@@ -20,7 +22,7 @@ class MemoryView(APIView):
         memories = Memories.objects.filter(guest=guest)
         serializer = MemoriesSerializer(memories, many=True)
         return Response(serializer.data)
-
+    @csrf_exempt
     def post(self, request):
         serializer = MemoriesSerializer(data=request.data)
         if serializer.is_valid():
@@ -30,6 +32,7 @@ class MemoryView(APIView):
     
 
 class MemoryDetailView(APIView):
+    @csrf_exempt
     def get_object(self, pk, guest_id):
         try:
             memory = Memories.objects.get(pk=pk)
@@ -38,7 +41,7 @@ class MemoryDetailView(APIView):
             return memory
         except Memories.DoesNotExist:
             raise NotFound(detail="Memory not found")
-
+    @csrf_exempt
     def delete(self, request, pk):
         guest_id = request.session.get('guest_id')
         if not guest_id:
@@ -49,6 +52,7 @@ class MemoryDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AllMemoriesView(APIView):
+    @csrf_exempt
     def get(self, request):
         try:
             memories = Memories.objects.all()
